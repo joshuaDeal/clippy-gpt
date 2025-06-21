@@ -19,8 +19,15 @@ from PySide6.QtWebEngineWidgets import QWebEngineView
 from PySide6.QtWebEngineCore import QWebEnginePage, QWebEngineSettings
 import pygame.mixer
 
+# Check if we are 'frozen' and set up assets path accordingly
+if getattr(sys, 'frozen', False):
+	# PyInstaller bundle
+	base_path = sys._MEIPASS
+else:
+	base_path = os.path.dirname(__file__)
+
 # Get absolute path to assets directory
-ASSETS_DIR = os.path.join(os.path.dirname(__file__), "..", "assets")
+ASSETS_DIR = os.path.join(base_path, "..", "assets")
 
 PROMPT_MENU_WIDTH = 300
 PROMPT_MENU_HEIGHT = 400 
