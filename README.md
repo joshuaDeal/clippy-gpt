@@ -21,4 +21,5 @@ This is a list of projects that proved to be extremely valuable resources when t
 - [clippyjs](https://github.com/pi0/clippyjs) -- The sprite sheet, animation definitions, and sound effects were all source from this project.
 - [ClippyVS](https://github.com/tanathos/ClippyVS) -- Clippy in Visual Studio.
 - [Clippy](https://github.com/felixrieseberg/clippy) -- Another Clippy as an AI front-end. This one is set up to work with local LLMs. I might go that same direction with this project someday, but I haven't really gotten that deep into toying around with local LLMs yet.
+
 And then of course, there is the original Clippy from Microsoft Office.
