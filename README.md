@@ -1,4 +1,4 @@
-# clippy-gpt
+# clippy-gpt 📎📎📎
 Technically, his name is **Clipit**.
 
 `clippy-gpt` is a ChatGPT powered recreation of everyone's favorite paperclip assistant that came bundled in older versions of the Microsoft Office suite. Clippy hangs out on your desktop, patiently waiting to answer any questions you might encounter. You can read more about Clippy [here](https://en.wikipedia.org/wiki/Office_Assistant).
