@@ -1,7 +1,7 @@
 # clippy-gpt 📎📎📎
 Technically, his name is **Clipit**.
 
-`clippy-gpt` is a ChatGPT powered recreation of everyone's favorite paperclip assistant that came bundled in older versions of the Microsoft Office suite. Clippy hangs out on your desktop, patiently waiting to answer any questions you might encounter. You can read more about Clippy [here](https://en.wikipedia.org/wiki/Office_Assistant).
+`clippy-gpt` is a ChatGPT powered recreation of everyone's favorite paperclip assistant that came bundled in older versions of the Microsoft Office suite. Clippy hangs out on your desktop, patiently waiting to answer any questions you might encounter. You can read more about the original Clippy [here](https://en.wikipedia.org/wiki/Office_Assistant).
 
 ## Installation / Configuration
 In order to take full advantage of Clippy's AI functionality, you need an OpenAI API Key. On Unix like systems, this key is excepted to be stored in the variable `OPENAI_API_KEY`. I'll have to check how variables like this are handled in Windows and I'll update this part of the documentation accordingly once I've figured it out.
