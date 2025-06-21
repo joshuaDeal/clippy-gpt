@@ -23,11 +23,10 @@ import pygame.mixer
 if getattr(sys, 'frozen', False):
 	# PyInstaller bundle
 	base_path = sys._MEIPASS
+	ASSETS_DIR = os.path.join(base_path, "assets")
 else:
 	base_path = os.path.dirname(__file__)
-
-# Get absolute path to assets directory
-ASSETS_DIR = os.path.join(base_path, "..", "assets")
+	ASSETS_DIR = os.path.join(base_path, "..", "assets")
 
 PROMPT_MENU_WIDTH = 300
 PROMPT_MENU_HEIGHT = 400 
