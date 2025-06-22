@@ -1,0 +1,4 @@
+markdown
+requests
+PySide6
+pygame
