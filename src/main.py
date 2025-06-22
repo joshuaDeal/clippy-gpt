@@ -490,7 +490,7 @@ class DialogBox(QDialog):
 
 		self.default_system_message = "You are a paperclip named Clippy. Your job is to assist the user. You use markdown."
 		self.default_model = "gpt-4o-mini"
-		self.api_key = os.getenv("OPENAI_API_KEY")
+		self.api_key = os.getenv("OPENAI_API_KEY").strip()
 
 		self.greetings = ["How's life? All work and no play?", "Hey, there. What's the word?"]
 		self.greeting = random.choice(self.greetings)
