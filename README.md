@@ -4,7 +4,13 @@ Technically, his name is **Clippit**.
 `clippy-gpt` is a ChatGPT powered recreation of everyone's favorite paperclip assistant that came bundled in older versions of the Microsoft Office suite. Clippy hangs out on your desktop, patiently waiting to answer any questions you might encounter. You can read more about the original Clippy [here](https://en.wikipedia.org/wiki/Office_Assistant).
 
 ## Installation / Configuration
-In order to take full advantage of Clippy's AI functionality, you need an OpenAI API Key. Save this key in the enviromental variable `OPENAI_API_KEY`. In Linux, you can do this by adding something like `export OPENAI_API_KEY='<Your API Key goes here>'` to your `.bashrc` file. In Windows, you can launch `sysdm.cpl` from the `mod + R` menu. On the `Advanced` tab, press the `Environmental Variables` button. From that screen, you can create a new system variable called `OPENAI_API_KEY` and asign it the value of your API key. In some setups on both Windows and Linux, a reboot may be needed for these changes to take effect.
+In order to take full advantage of Clippy's AI functionality, you need an OpenAI API Key. Save this key in the enviromental variable `OPENAI_API_KEY`.
+
+In Linux, you can do this by adding something like `export OPENAI_API_KEY='<Your API Key goes here>'` to your `.bashrc` file.
+
+In Windows, you can launch `sysdm.cpl` from the `mod + R` menu. On the `Advanced` tab, press the `Environmental Variables` button. From that screen, you can create a new system variable called `OPENAI_API_KEY` and asign it the value of your API key.
+
+In some setups on both Windows and Linux, a reboot may be needed for these changes to take effect.
 
 You'll need to install the dependencies listed in `requirements.txt`. The process may vary depending on how your system is configured, but generally you can do this by downloading `requirements.txt` and then running
 
