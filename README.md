@@ -6,10 +6,28 @@ Technically, his name is **Clippit**.
 ## Installation / Configuration
 In order to take full advantage of Clippy's AI functionality, you need an OpenAI API Key. On Unix like systems, this key is excepted to be stored in the variable `OPENAI_API_KEY`. I'll have to check how variables like this are handled in Windows and I'll update this part of the documentation accordingly once I've figured it out.
 
-I will put the installation instructions here.
+You'll need to install the dependencies listed in `requirements.txt`. The process may vary depending on how your system is configured, but generally you can do this by downloading `requirements.txt` and then running
+
+```
+pip install -r requirements.txt
+```
+
+Once the dependencies are installed, you can download the latest binary from the [Releases page](https://github.com/joshuaDeal/clippy-gpt/releases). Make this binary executable, and you should be good to go!
 
 ## Building
-`clippy-gpt` can be built with PyInstaller. I will add more detailed build instructions here.
+`clippy-gpt` can be built with PyInstaller.
+
+Again, you must first install all of the dependencies from `requirements.txt` (See above).
+
+Then, run
+
+```
+pyinstaller main.spec
+```
+
+from inside of the git repository's root directory.
+
+This should create a directory called `dist/` inside of which you should see a new binary file.
 
 ## Why?
 Clippy got a lot of hate in his day, but I always liked the little guy! I have fond memories from the elementary school computer lab, where instead of writing my essays like I should have been, I'd spend entire class periods cycling though all of Clippy's animations and dragging him around the screen to funny positions. Now, I can do that all over again. I suppose I never really grew up much. ¯\\\_(ツ)\_/¯
