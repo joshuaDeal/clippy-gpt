@@ -12,7 +12,7 @@ You'll need to install the dependencies listed in `requirements.txt`. The proces
 pip install -r requirements.txt
 ```
 
-Once the dependencies are installed, you can download the latest binary from the [Releases page](https://github.com/joshuaDeal/clippy-gpt/releases). Make this binary executable, and you should be good to go!
+Once the dependencies are installed, you can download the latest binary from the [releases page](https://github.com/joshuaDeal/clippy-gpt/releases). Make this binary executable, and you should be good to go!
 
 ## Building
 `clippy-gpt` can be built with PyInstaller.
