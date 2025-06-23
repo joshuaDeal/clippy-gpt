@@ -12,7 +12,7 @@ from markdown.extensions.extra import ExtraExtension
 from markdown.extensions.toc import TocExtension
 import html
 import requests
-from PySide6.QtWidgets import QApplication, QWidget, QMenu, QDialog, QVBoxLayout, QLineEdit, QSpacerItem, QSizePolicy, QSizeGrip
+from PySide6.QtWidgets import QApplication, QWidget, QMenu, QDialog, QVBoxLayout, QLineEdit, QSpacerItem, QSizePolicy, QSizeGrip, QFileDialog
 from PySide6.QtCore import Qt, QTimer, QPoint, QThread, QObject, Signal, Slot
 from PySide6.QtGui import QPainter, QPixmap, QAction, QPolygon, QColor, QDesktopServices
 from PySide6.QtWebEngineWidgets import QWebEngineView
@@ -409,6 +409,15 @@ class ClippyWindow(QWidget):
 	
 		self.move(clippy_new_x, clippy_new_y)
 
+	def save_chat_history(self):
+		file_path, _ = QFileDialog.getSaveFileName(self, "Save Chat", "", "JSON Files(*.json);;All Files (*)")
+		if file_path:
+			try:
+				with open(file_path, 'w') as file:
+					json.dump(self.dialog.chat_history, file, indent=2)
+			except Exception as e:
+				print(f"Failed to save chat: {e}")
+
 	def goodbye(self):
 		"""Pick a random exit animation and then exit."""
 		if self.dialog:
@@ -459,18 +468,21 @@ class ClippyWindow(QWidget):
 			prompt_action = QAction("Hide Prompt", self)
 
 		animate_action = QAction("Animate", self)
-		exit_action = QAction("Exit", self)
+		save_chat_action = QAction("Save Chat", self)
 		reset_chat_action = QAction("Reset Chat", self)
+		exit_action = QAction("Exit", self)
 
 		# Assign functions to actions
 		prompt_action.triggered.connect(self.toggle_prompt_menu)
 		animate_action.triggered.connect(self.play_random_animation)
+		save_chat_action.triggered.connect(self.save_chat_history)
 		reset_chat_action.triggered.connect(self.dialog.reset_chat)
 		exit_action.triggered.connect(self.goodbye)
 
 		# Add actions to menu
 		menu.addAction(prompt_action)
 		menu.addAction(animate_action)
+		menu.addAction(save_chat_action)
 		menu.addAction(reset_chat_action)
 		menu.addAction(exit_action)
 
