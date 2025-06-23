@@ -112,8 +112,13 @@ class ClippyWindow(QWidget):
 		super().__init__()
 
 		self.exiting = False
-		self.dialog = None
 		self.prompting = False
+
+		# Create a dialog box.
+		self.dialog = DialogBox(self)
+		dialog_width = self.dialog.width()
+		dialog_height = self.dialog.height()
+		self.dialog.move(self.pos().x() - (dialog_width - 235),	self.pos().y() - (dialog_height - 15))
 		
 		# Remove window border and make background transparent
 		self.setWindowFlags(Qt.FramelessWindowHint | Qt.WindowStaysOnTopHint | Qt.Tool)
@@ -353,14 +358,6 @@ class ClippyWindow(QWidget):
 	def toggle_prompt_menu(self):
 		"""Open / Close the dialog box / prompt menu"""
 		if not self.prompting:
-			# Create dialog box if it does not exist
-			if not hasattr(self, 'dialog') or self.dialog is None:
-				self.dialog = DialogBox(self)
-				
-				dialog_width = self.dialog.width()
-				dialog_height = self.dialog.height()
-				self.dialog.move(self.pos().x() - (dialog_width - 235),	self.pos().y() - (dialog_height - 15))
-
 			self.dialog.show()
 			self.prompting = True
 		else:
@@ -463,15 +460,18 @@ class ClippyWindow(QWidget):
 
 		animate_action = QAction("Animate", self)
 		exit_action = QAction("Exit", self)
+		reset_chat_action = QAction("Reset Chat", self)
 
 		# Assign functions to actions
 		prompt_action.triggered.connect(self.toggle_prompt_menu)
 		animate_action.triggered.connect(self.play_random_animation)
+		reset_chat_action.triggered.connect(self.dialog.reset_chat)
 		exit_action.triggered.connect(self.goodbye)
 
 		# Add actions to menu
 		menu.addAction(prompt_action)
 		menu.addAction(animate_action)
+		menu.addAction(reset_chat_action)
 		menu.addAction(exit_action)
 
 		# Display menu at mouse click location
@@ -491,12 +491,6 @@ class DialogBox(QDialog):
 		self.default_system_message = "You are a paperclip named Clippy. Your job is to assist the user. You use markdown."
 		self.default_model = "gpt-4o-mini"
 		self.api_key = os.getenv("OPENAI_API_KEY").strip()
-
-		self.greetings = ["How's life? All work and no play?", "Hey, there. What's the word?"]
-		self.greeting = random.choice(self.greetings)
-		self.chat_history = [f"Chatbot: {self.greeting}"]
-
-		self.greeting_html = f"<div class='message bot'>{self.greeting}</div>"
 
 		# Window Styling
 		self.setWindowFlags(Qt.FramelessWindowHint | Qt.Tool)
@@ -524,7 +518,6 @@ class DialogBox(QDialog):
 		self.label.setPage(ExternalLinkPage(self.label))
 		self.label.setContextMenuPolicy(Qt.ContextMenuPolicy.NoContextMenu)
 		self.label.setSizePolicy(QSizePolicy.Expanding, QSizePolicy.Expanding)
-		self.label.setHtml(self.generate_html(self.greeting_html))
 
 		# More specific Web Engine settings.
 		engine_settings = self.label.page().settings()
@@ -535,6 +528,9 @@ class DialogBox(QDialog):
 		engine_settings.setAttribute(QWebEngineSettings.Accelerated2dCanvasEnabled, False)
 
 		spacer = QSpacerItem(0, 10, QSizePolicy.Minimum, QSizePolicy.Fixed)
+
+		# Set chat to initial state
+		self.reset_chat()
 
 		# Input field
 		self.input_field = QLineEdit()
@@ -707,6 +703,18 @@ class DialogBox(QDialog):
 		with open(path, "rb") as f:
 			data = f.read()
 			return base64.b64encode(data).decode("utf-8")
+
+	def reset_chat(self):
+		# Pick greeting message
+		self.greetings = ["How's life? All work and no play?", "Hey, there. What's the word?"]
+		self.greeting = random.choice(self.greetings)
+
+		# Reset chat history
+		self.chat_history = [f"Chatbot: {self.greeting}"]
+
+		# Reset html
+		self.greeting_html = f"<div class='message bot'>{self.greeting}</div>"
+		self.label.setHtml(self.generate_html(self.greeting_html))
 
 	def shutdown(self):
 		# Gracefully close all active threads
