@@ -421,6 +421,16 @@ class ClippyWindow(QWidget):
 			except Exception as e:
 				print(f"Failed to save chat: {e}")
 
+	def load_chat_history(self):
+		file_path, _ = QFileDialog.getOpenFileName(self, "Load Chat", "", "JSON Files (*.json);;All Files (*)")
+		if file_path:
+			try:
+				with open(file_path, 'r') as file:
+					chat_history = json.load(file)
+					self.dialog.set_chat_history(chat_history)
+			except Exception as e:
+				print(f"Failed to load chat: {e}")
+
 	def goodbye(self):
 		"""Pick a random exit animation and then exit."""
 		if self.dialog:
@@ -472,6 +482,7 @@ class ClippyWindow(QWidget):
 
 		animate_action = QAction("Animate", self)
 		save_chat_action = QAction("Save Chat", self)
+		load_chat_action = QAction("Load Chat", self)
 		reset_chat_action = QAction("Reset Chat", self)
 		exit_action = QAction("Exit", self)
 
@@ -479,6 +490,7 @@ class ClippyWindow(QWidget):
 		prompt_action.triggered.connect(self.toggle_prompt_menu)
 		animate_action.triggered.connect(self.play_random_animation)
 		save_chat_action.triggered.connect(self.save_chat_history)
+		load_chat_action.triggered.connect(self.load_chat_history)
 		reset_chat_action.triggered.connect(self.dialog.reset_chat)
 		exit_action.triggered.connect(self.goodbye)
 
@@ -486,6 +498,7 @@ class ClippyWindow(QWidget):
 		menu.addAction(prompt_action)
 		menu.addAction(animate_action)
 		menu.addAction(save_chat_action)
+		menu.addAction(load_chat_action)
 		menu.addAction(reset_chat_action)
 		menu.addAction(exit_action)
 
@@ -730,6 +743,12 @@ class DialogBox(QDialog):
 		# Reset html
 		self.greeting_html = f"<div class='message bot'>{self.greeting}</div>"
 		self.label.setHtml(self.generate_html(self.greeting_html))
+
+	def set_chat_history(self, chat_history):
+		# Set chat history
+		self.chat_history = chat_history
+
+		# TODO: Set html. In order to make things easier, I will first change the format which we are storing the history in to something that is easier to work with.
 
 	def shutdown(self):
 		# Gracefully close all active threads
