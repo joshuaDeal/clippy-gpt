@@ -412,6 +412,9 @@ class ClippyWindow(QWidget):
 	def save_chat_history(self):
 		file_path, _ = QFileDialog.getSaveFileName(self, "Save Chat", "", "JSON Files(*.json);;All Files (*)")
 		if file_path:
+			if not file_path.endswith('.json'):
+				file_path += '.json'
+
 			try:
 				with open(file_path, 'w') as file:
 					json.dump(self.dialog.chat_history, file, indent=2)
