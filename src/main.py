@@ -751,7 +751,28 @@ class DialogBox(QDialog):
 		# Set chat history
 		self.chat_history = chat_history
 
-		# TODO: Set html. In order to make things easier, I will first change the format which we are storing the history in to something that is easier to work with.
+		# Set html	
+		messages_html = ""
+		for msg in self.chat_history.get("exchanges", []):
+			role = msg.get("role", "assistant")
+			content = msg.get("content", "")
+	
+			if role == "assistant":
+				# Render Markdown to HTML for assistant messages
+				md_html = markdown.markdown(
+					content,
+					extensions=[ExtraExtension(), CodeHiliteExtension(noclasses=True), FencedCodeExtension(), TocExtension(baselevel=2)]
+				)
+				message_html = f"<div class='message bot'>{md_html}</div>"
+			else:
+				# Escape and render user message as-is
+				safe_text = html.escape(content)
+				message_html = f"<div class='message user'>{safe_text}</div>"
+	
+			messages_html += message_html
+	
+		full_html = self.generate_html(messages_html)
+		self.label.setHtml(full_html)
 
 	def shutdown(self):
 		# Gracefully close all active threads
