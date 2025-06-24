@@ -483,10 +483,14 @@ class ClippyWindow(QWidget):
 			prompt_action = QAction("Hide Prompt", self)
 
 		animate_action = QAction("Animate", self)
+		exit_action = QAction("Exit", self)
+
+		# Submenu for chat settings
+		chat_settings_menu = QMenu("Chat Settings", self)
+
 		save_chat_action = QAction("Save Chat", self)
 		load_chat_action = QAction("Load Chat", self)
 		reset_chat_action = QAction("Reset Chat", self)
-		exit_action = QAction("Exit", self)
 
 		# Assign functions to actions
 		prompt_action.triggered.connect(self.toggle_prompt_menu)
@@ -496,12 +500,15 @@ class ClippyWindow(QWidget):
 		reset_chat_action.triggered.connect(self.dialog.reset_chat)
 		exit_action.triggered.connect(self.goodbye)
 
-		# Add actions to menu
+		# Add actions to submenu
+		chat_settings_menu.addAction(save_chat_action)
+		chat_settings_menu.addAction(load_chat_action)
+		chat_settings_menu.addAction(reset_chat_action)
+
+		# Add actions to main menu
 		menu.addAction(prompt_action)
 		menu.addAction(animate_action)
-		menu.addAction(save_chat_action)
-		menu.addAction(load_chat_action)
-		menu.addAction(reset_chat_action)
+		menu.addMenu(chat_settings_menu)
 		menu.addAction(exit_action)
 
 		# Display menu at mouse click location
