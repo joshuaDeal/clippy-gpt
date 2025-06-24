@@ -78,9 +78,11 @@ def prompt_chatgpt(prompt, system_message, history, api_key, model):
 	if system_message != '':
 		messages.append({"role": "system", "content": system_message})
 
-	for i in range(len(history)):
-		messages.append({"role": "assistant", "content": history[i]})
+	# Add chat history to messages
+	if "exchanges" in history:
+		messages.extend(history["exchanges"])
 
+	# Add current prompt to messages
 	messages.append({"role": "user", "content": prompt})
 
 	request_data = {"model": model, "messages": messages}
@@ -697,7 +699,8 @@ class DialogBox(QDialog):
 
 
 	def display_bot_response(self, prompt, md_reply):
-		self.chat_history.append(f"User: {prompt}\nChatbot: {md_reply}")
+		self.chat_history["exchanges"].append({"role": "user", "content": prompt})
+		self.chat_history["exchanges"].append({"role": "assistant", "content": md_reply})
 
 		html_reply = markdown.markdown(md_reply, extensions=[ExtraExtension(), CodeHiliteExtension(noclasses=True), FencedCodeExtension(), TocExtension(baselevel=2)])
 		safe_html = html_reply.replace("\\", "\\\\").replace('"', '\\"').replace("'", "\\'").replace("`", "\\`").replace("\n", "\\n").replace("{", "\\{").replace("}", "\\}").replace("$", "\\$")
@@ -738,7 +741,7 @@ class DialogBox(QDialog):
 		self.greeting = random.choice(self.greetings)
 
 		# Reset chat history
-		self.chat_history = [f"Chatbot: {self.greeting}"]
+		self.chat_history = {"exchanges": [{"role": "assistant", "content": self.greeting}]}
 
 		# Reset html
 		self.greeting_html = f"<div class='message bot'>{self.greeting}</div>"
