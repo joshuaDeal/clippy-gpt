@@ -439,6 +439,10 @@ class ClippyWindow(QWidget):
 			except Exception as e:
 				print(f"Failed to load chat: {e}")
 
+	def reset_chat_helper(self):
+		self.set_animation("EmptyTrash")
+		self.dialog.reset_chat()
+
 	def goodbye(self):
 		"""Pick a random exit animation and then exit."""
 		if self.dialog:
@@ -514,7 +518,7 @@ class ClippyWindow(QWidget):
 		animate_action.triggered.connect(self.play_random_animation)
 		save_chat_action.triggered.connect(self.save_chat_history)
 		load_chat_action.triggered.connect(self.load_chat_history)
-		reset_chat_action.triggered.connect(self.dialog.reset_chat)
+		reset_chat_action.triggered.connect(self.reset_chat_helper)
 		openai_action.triggered.connect(lambda: self.dialog.set_ai_model("OpenAI", "gpt-4o-mini"))
 		openrouter_action.triggered.connect(lambda: self.dialog.set_ai_model("OpenRouter", "deepseek/deepseek-r1-0528-qwen3-8b:free"))
 		exit_action.triggered.connect(self.goodbye)
