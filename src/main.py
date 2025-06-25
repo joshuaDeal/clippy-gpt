@@ -552,7 +552,7 @@ class DialogBox(QDialog):
 		self.default_system_message = "You are a paperclip named Clippy. Your job is to assist the user. You use markdown."
 
 		# Default AI Settings
-		self.set_ai_model("OpenAI", "gpt-4o-mini")
+		self.set_ai_model("OpenRouter", "deepseek/deepseek-r1-0528-qwen3-8b:free")
 
 		# Window Styling
 		self.setWindowFlags(Qt.FramelessWindowHint | Qt.Tool)
