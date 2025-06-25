@@ -70,8 +70,8 @@ def load_animations(json_path, sheet_columns):
 
 	return animations
 
-def prompt_chatgpt(prompt, system_message, history, api_key, model):
-	"""Send a prompt to OpenAI's ChatGPT API."""
+def prompt_ai(prompt, system_message, history, api_key, model, service):
+	"""Send a prompt to the preferred AI API."""
 	messages=[]
 
 	# Construct the message part of the API request
@@ -86,11 +86,17 @@ def prompt_chatgpt(prompt, system_message, history, api_key, model):
 	messages.append({"role": "user", "content": prompt})
 
 	request_data = {"model": model, "messages": messages}
-	request_header = {"Content-Type": "application/json", "Authorization": f"Bearer {api_key}", "OpenAI-Beta": "assistants=v1"}
+
+	if service == "OpenAI":
+		request_header = {"Content-Type": "application/json", "Authorization": f"Bearer {api_key}", "OpenAI-Beta": "assistants=v1"}
+		url = "https://api.openai.com/v1/chat/completions"
+	elif service == "OpenRouter":
+		request_header = {"Content-Type": "application/json", "Authorization": f"Bearer {api_key}"}
+		url = "https://openrouter.ai/api/v1/chat/completions"
 
 	try:
 		# Send the request to the API
-		api_response = requests.post('https://api.openai.com/v1/chat/completions', json=request_data, headers=request_header)
+		api_response = requests.post(url, json=request_data, headers=request_header)
 
 		# Raise HTTPError for bad responses
 		api_response.raise_for_status()
@@ -492,23 +498,41 @@ class ClippyWindow(QWidget):
 		load_chat_action = QAction("Load Chat", self)
 		reset_chat_action = QAction("Reset Chat", self)
 
+		# Submenu for AI settings
+		ai_settings_menu = QMenu("AI Settings", self)
+
+		# Check which AI model is selected
+		if self.dialog.ai_service == "OpenAI":
+			openai_action = QAction("• OpenAI", self)
+			openrouter_action = QAction("OpenRouter", self)
+		elif self.dialog.ai_service == "OpenRouter":
+			openrouter_action = QAction("• OpenRouter", self)
+			openai_action = QAction("OpenAI", self)
+
 		# Assign functions to actions
 		prompt_action.triggered.connect(self.toggle_prompt_menu)
 		animate_action.triggered.connect(self.play_random_animation)
 		save_chat_action.triggered.connect(self.save_chat_history)
 		load_chat_action.triggered.connect(self.load_chat_history)
 		reset_chat_action.triggered.connect(self.dialog.reset_chat)
+		openai_action.triggered.connect(lambda: self.dialog.set_ai_model("OpenAI", "gpt-4o-mini"))
+		openrouter_action.triggered.connect(lambda: self.dialog.set_ai_model("OpenRouter", "deepseek/deepseek-r1-0528-qwen3-8b:free"))
 		exit_action.triggered.connect(self.goodbye)
 
-		# Add actions to submenu
+		# Add actions to chat settings submenu
 		chat_settings_menu.addAction(save_chat_action)
 		chat_settings_menu.addAction(load_chat_action)
 		chat_settings_menu.addAction(reset_chat_action)
+
+		# Add actions to AI settings submenu
+		ai_settings_menu.addAction(openai_action)
+		ai_settings_menu.addAction(openrouter_action)
 
 		# Add actions to main menu
 		menu.addAction(prompt_action)
 		menu.addAction(animate_action)
 		menu.addMenu(chat_settings_menu)
+		menu.addMenu(ai_settings_menu)
 		menu.addAction(exit_action)
 
 		# Display menu at mouse click location
@@ -526,8 +550,9 @@ class DialogBox(QDialog):
 		self.active_workers = []
 
 		self.default_system_message = "You are a paperclip named Clippy. Your job is to assist the user. You use markdown."
-		self.default_model = "gpt-4o-mini"
-		self.api_key = os.getenv("OPENAI_API_KEY").strip()
+
+		# Default AI Settings
+		self.set_ai_model("OpenAI", "gpt-4o-mini")
 
 		# Window Styling
 		self.setWindowFlags(Qt.FramelessWindowHint | Qt.Tool)
@@ -585,6 +610,20 @@ class DialogBox(QDialog):
 		layout.addItem(spacer)
 		layout.addWidget(self.input_field)
 		self.setLayout(layout)
+
+	def set_ai_model(self, service, model):
+		"""Set AI service and model"""
+		self.ai_service = service
+		self.model = model
+		
+		# Pick a api key.
+		if service == "OpenAI":
+			self.api_key = os.getenv("OPENAI_API_KEY").strip()
+		elif service == "OpenRouter":
+			self.api_key = os.getenv("OPENROUTER_API_KEY").strip()
+		else:
+			print(f"Warning: Unknown AI service: {service}")
+		
 
 	def generate_html(self, message):
 		"""Generate full HTML structure for displaying messages."""
@@ -677,7 +716,7 @@ class DialogBox(QDialog):
 
 		# Create thread and worker
 		thread = QThread()
-		worker = ChatWorker(input_text, self.default_system_message, self.chat_history, self.api_key, self.default_model)
+		worker = ChatWorker(input_text, self.default_system_message, self.chat_history, self.api_key, self.model, self.ai_service)
 		worker.moveToThread(thread)
 		
 		# Maintain reference
@@ -833,18 +872,19 @@ class ChatWorker(QObject):
 	finished = Signal(str, str)
 	error = Signal(str)
 
-	def __init__(self, prompt, system_message, history, api_key, model):
+	def __init__(self, prompt, system_message, history, api_key, model, service):
 		super().__init__()
 		self.prompt = prompt
 		self.system_message = system_message
 		self.history = history
 		self.api_key = api_key
 		self.model = model
+		self.ai_service = service
 
 	@Slot()
 	def run(self):
 		try:
-			response = prompt_chatgpt(self.prompt, self.system_message, self.history, self.api_key, self.model)
+			response = prompt_ai(self.prompt, self.system_message, self.history, self.api_key, self.model, self.ai_service)
 			if "error" in response:
 				self.error.emit(response["error"])
 			elif "choices" in response and response["choices"]:
