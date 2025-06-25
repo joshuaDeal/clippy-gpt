@@ -426,6 +426,7 @@ class ClippyWindow(QWidget):
 			try:
 				with open(file_path, 'w') as file:
 					json.dump(self.dialog.chat_history, file, indent=2)
+					self.set_animation("Save")
 			except Exception as e:
 				print(f"Failed to save chat: {e}")
 
