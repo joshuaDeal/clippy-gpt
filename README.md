@@ -6,7 +6,7 @@ Technically, his name is **Clippit**.
 https://github.com/user-attachments/assets/67e93c4a-c33d-4421-b300-cb764dd05143
 
 ## Installation / Configuration
-In order to take full advantage of Clippy's AI functionality, you need either an OpenAI API Key, or an OpenRouter API key. Save this key in the environmental variable `OPENAI_API_KEY` or `OPENROUTER_API_KEY`, respectively. I have included OpenRouter as an option because it provides some degree of free access to online AI models, unlike OpenAI, which, as of this writing, does not offer any free AI solutions via their API.
+In order to take full advantage of Clippy's AI functionality, you need either an OpenAI API Key, or an OpenRouter API key. Save this key in the environmental variable `OPENAI_API_KEY` or `OPENROUTER_API_KEY`, respectively. I have included OpenRouter as an option because it provides some degree of free access to online AI models, unlike OpenAI, which, as of this writing, does not offer any free AI solutions via their API. However, I would recommend using OpenAI over the free OpenRouter option if you are willing to pay for API access.
 
 In Linux, you can create a new environmental variable by adding something like `export OPENAI_API_KEY='<Your API Key goes here>'` to your `.bashrc` file.
 
