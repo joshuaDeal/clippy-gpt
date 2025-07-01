@@ -521,7 +521,7 @@ class ClippyWindow(QWidget):
 		load_chat_action.triggered.connect(self.load_chat_history)
 		reset_chat_action.triggered.connect(self.reset_chat_helper)
 		openai_action.triggered.connect(lambda: self.dialog.set_ai_model("OpenAI", "gpt-4o-mini"))
-		openrouter_action.triggered.connect(lambda: self.dialog.set_ai_model("OpenRouter", "deepseek/deepseek-r1-0528-qwen3-8b:free"))
+		openrouter_action.triggered.connect(lambda: self.dialog.set_ai_model("OpenRouter", "deepseek/deepseek-chat-v3-0324:free"))
 		exit_action.triggered.connect(self.goodbye)
 
 		# Add actions to chat settings submenu
@@ -557,7 +557,7 @@ class DialogBox(QDialog):
 		self.default_system_message = "You are a paperclip named Clippy. Your job is to assist the user. You use markdown."
 
 		# Default AI Settings
-		self.set_ai_model("OpenRouter", "deepseek/deepseek-r1-0528-qwen3-8b:free")
+		self.set_ai_model("OpenRouter", "deepseek/deepseek-chat-v3-0324:free")
 
 		# Window Styling
 		self.setWindowFlags(Qt.FramelessWindowHint | Qt.Tool)
