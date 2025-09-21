@@ -206,7 +206,7 @@ class ClippyWindow(QWidget):
 		# Create sound effects player
 		pygame.mixer.init()
 
-		# Pick a geeting animation at random and play it.
+		# Pick a greeting animation at random and play it.
 		greetings = ["Show", "Greeting_1", "Greeting_2"]
 		self.set_animation(greetings[random.randint(0, len(greetings) - 1)])
 
@@ -236,7 +236,7 @@ class ClippyWindow(QWidget):
 			loops = animation_obj.get("Loops", [])
 			loop_controls = getattr(self, "loop_controls", {}) if hasattr(self, "loop_controls") else {}
 
-			# Warn if loop_controls contains idices for non-existent loops
+			# Warn if loop_controls contains indices for non-existent loops
 			if loop_controls:
 				for idx in loop_controls:
 					if idx >= len(loops):
