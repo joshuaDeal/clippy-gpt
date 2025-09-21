@@ -1,5 +1,5 @@
 markdown
 requests
-PySide6
+PySide6[webengine]
 pygame
 llama_cpp
