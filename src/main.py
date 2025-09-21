@@ -12,12 +12,15 @@ from markdown.extensions.extra import ExtraExtension
 from markdown.extensions.toc import TocExtension
 import html
 import requests
+import threading
+import gc
 from PySide6.QtWidgets import QApplication, QWidget, QMenu, QDialog, QVBoxLayout, QLineEdit, QSpacerItem, QSizePolicy, QSizeGrip, QFileDialog
 from PySide6.QtCore import Qt, QTimer, QPoint, QThread, QObject, Signal, Slot
 from PySide6.QtGui import QPainter, QPixmap, QAction, QPolygon, QColor, QDesktopServices
 from PySide6.QtWebEngineWidgets import QWebEngineView
 from PySide6.QtWebEngineCore import QWebEnginePage, QWebEngineSettings
 import pygame.mixer
+from llama_cpp import Llama
 
 # Check if we are 'frozen' and set up assets path accordingly
 if getattr(sys, 'frozen', False):
@@ -29,7 +32,11 @@ else:
 	ASSETS_DIR = os.path.join(base_path, "..", "assets")
 
 PROMPT_MENU_WIDTH = 300
-PROMPT_MENU_HEIGHT = 400 
+PROMPT_MENU_HEIGHT = 400
+
+llm_instance = None
+llm_model_path = None
+llama_lock = threading.Lock()
 
 def load_asset(filename):
 	"""Returns the full path to an asset file."""
@@ -70,6 +77,29 @@ def load_animations(json_path, sheet_columns):
 
 	return animations
 
+def get_llama_instance(model_path: str):
+	global llm_instance, llm_model_path
+
+	# Reset llm_instance to None if it becomes undefined. This can happen if we load an invalid .gguf file.
+	try:
+		llm_instance
+	except NameError:
+		llm_instance = None
+
+	with llama_lock:
+		if llm_instance is None or llm_model_path != model_path:
+			if llm_model_path != model_path:
+				# Clean up old instance after a switch.
+				llm_instance = None
+				gc.collect()
+
+			try:
+				llm_instance = Llama(model_path=model_path)
+				llm_model_path = model_path
+			except Exception as e:
+				return {"error": f"Failed to load local model: {e}"}
+	return llm_instance
+
 def prompt_ai(prompt, system_message, history, api_key, model, service):
 	"""Send a prompt to the preferred AI API."""
 	messages=[]
@@ -87,33 +117,41 @@ def prompt_ai(prompt, system_message, history, api_key, model, service):
 
 	request_data = {"model": model, "messages": messages}
 
-	if service == "OpenAI":
-		request_header = {"Content-Type": "application/json", "Authorization": f"Bearer {api_key}", "OpenAI-Beta": "assistants=v1"}
-		url = "https://api.openai.com/v1/chat/completions"
-	elif service == "OpenRouter":
-		request_header = {"Content-Type": "application/json", "Authorization": f"Bearer {api_key}"}
-		url = "https://openrouter.ai/api/v1/chat/completions"
+	if service != "Local":
+		if service == "OpenAI":
+			request_header = {"Content-Type": "application/json", "Authorization": f"Bearer {api_key}", "OpenAI-Beta": "assistants=v1"}
+			url = "https://api.openai.com/v1/chat/completions"
+		elif service == "OpenRouter":
+			request_header = {"Content-Type": "application/json", "Authorization": f"Bearer {api_key}"}
+			url = "https://openrouter.ai/api/v1/chat/completions"
+	
+		try:
+			# Send the request to the API
+			api_response = requests.post(url, json=request_data, headers=request_header)
+	
+			# Raise HTTPError for bad responses
+			api_response.raise_for_status()
+	
+			return api_response.json()
+		except requests.exceptions.HTTPError as http_err:
+			print(f"HTTP error occured: {http_err}")
+			return {"error": f"HTTP error: {response.status_code} - {response.text}"}
+		except requests.exceptions.ConnectionError:
+			print(f"Connection error: Failed to reach API")
+			return {"error": "Connection error: Unable to reach API."}
+		except requests.exceptions.Timeout:
+			print("Timeout error: API response took too long.")
+			return {"error": "Timeout error: The API took too long to respond."}
+		except requests.exceptions.RequestException as req_err:
+			print(f"Request error occurred: {req_err}")
+			return {"error": f"Request error: {req_err}"}
+	else:
+		# Logic for using llama.
+		llm = get_llama_instance(model)
+		chat_messages = request_data["messages"]
+		response = llm.create_chat_completion(messages=chat_messages)
 
-	try:
-		# Send the request to the API
-		api_response = requests.post(url, json=request_data, headers=request_header)
-
-		# Raise HTTPError for bad responses
-		api_response.raise_for_status()
-
-		return api_response.json()
-	except requests.exceptions.HTTPError as http_err:
-		print(f"HTTP error occured: {http_err}")
-		return {"error": f"HTTP error: {response.status_code} - {response.text}"}
-	except requests.exceptions.ConnectionError:
-		print(f"Connection error: Failed to reach API")
-		return {"error": "Connection error: Unable to reach API."}
-	except requests.exceptions.Timeout:
-		print("Timeout error: API response took too long.")
-		return {"error": "Timeout error: The API took too long to respond."}
-	except requests.exceptions.RequestException as req_err:
-		print(f"Request error occurred: {req_err}")
-		return {"error": f"Request error: {req_err}"}
+	return response
 
 class ClippyWindow(QWidget):
 	def __init__(self):
@@ -444,6 +482,13 @@ class ClippyWindow(QWidget):
 		self.set_animation("EmptyTrash")
 		self.dialog.reset_chat()
 
+	def load_local_llm(self):
+		file_path, _ = QFileDialog.getOpenFileName(self, "Load Local LLM", "", "gguf Files (*.gguf);;All Files (*)")
+		if file_path:
+				self.dialog.set_ai_model("Local", file_path)
+		else:
+			print("Error: Could not get file path for a local llm.")
+
 	def goodbye(self):
 		"""Pick a random exit animation and then exit."""
 		if self.dialog:
@@ -508,11 +553,17 @@ class ClippyWindow(QWidget):
 
 		# Check which AI model is selected
 		if self.dialog.ai_service == "OpenAI":
+			local_action = QAction("Local", self)
 			openai_action = QAction("• OpenAI", self)
 			openrouter_action = QAction("OpenRouter", self)
 		elif self.dialog.ai_service == "OpenRouter":
-			openrouter_action = QAction("• OpenRouter", self)
+			local_action = QAction("Local", self)
 			openai_action = QAction("OpenAI", self)
+			openrouter_action = QAction("• OpenRouter", self)
+		elif self.dialog.ai_service == "Local":
+			local_action = QAction("• Local", self)
+			openai_action = QAction("OpenAI", self)
+			openrouter_action = QAction("OpenRouter", self)
 
 		# Assign functions to actions
 		prompt_action.triggered.connect(self.toggle_prompt_menu)
@@ -522,6 +573,7 @@ class ClippyWindow(QWidget):
 		reset_chat_action.triggered.connect(self.reset_chat_helper)
 		openai_action.triggered.connect(lambda: self.dialog.set_ai_model("OpenAI", "gpt-4o-mini"))
 		openrouter_action.triggered.connect(lambda: self.dialog.set_ai_model("OpenRouter", "deepseek/deepseek-chat-v3-0324:free"))
+		local_action.triggered.connect(self.load_local_llm)
 		exit_action.triggered.connect(self.goodbye)
 
 		# Add actions to chat settings submenu
@@ -530,6 +582,7 @@ class ClippyWindow(QWidget):
 		chat_settings_menu.addAction(reset_chat_action)
 
 		# Add actions to AI settings submenu
+		ai_settings_menu.addAction(local_action)
 		ai_settings_menu.addAction(openai_action)
 		ai_settings_menu.addAction(openrouter_action)
 
@@ -626,6 +679,8 @@ class DialogBox(QDialog):
 			self.api_key = os.getenv("OPENAI_API_KEY").strip()
 		elif service == "OpenRouter":
 			self.api_key = os.getenv("OPENROUTER_API_KEY").strip()
+		elif service == "Local":
+			self.api_key = ""
 		else:
 			print(f"Warning: Unknown AI service: {service}")
 		
