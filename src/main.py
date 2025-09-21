@@ -676,9 +676,9 @@ class DialogBox(QDialog):
 		
 		# Pick a api key.
 		if service == "OpenAI":
-			self.api_key = os.getenv("OPENAI_API_KEY").strip()
+			self.api_key = os.getenv("OPENAI_API_KEY", "").strip()
 		elif service == "OpenRouter":
-			self.api_key = os.getenv("OPENROUTER_API_KEY").strip()
+			self.api_key = os.getenv("OPENROUTER_API_KEY", "").strip()
 		elif service == "Local":
 			self.api_key = ""
 		else:
