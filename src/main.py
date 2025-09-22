@@ -14,6 +14,7 @@ import html
 import requests
 import threading
 import gc
+import argparse
 from PySide6.QtWidgets import QApplication, QWidget, QMenu, QDialog, QVBoxLayout, QLineEdit, QSpacerItem, QSizePolicy, QSizeGrip, QFileDialog
 from PySide6.QtCore import Qt, QTimer, QPoint, QThread, QObject, Signal, Slot
 from PySide6.QtGui import QPainter, QPixmap, QAction, QPolygon, QColor, QDesktopServices
@@ -37,6 +38,10 @@ PROMPT_MENU_HEIGHT = 400
 llm_instance = None
 llm_model_path = None
 llama_lock = threading.Lock()
+
+parser = argparse.ArgumentParser(description="Friendly paperclip AI assistant.")
+parser.add_argument("--local", "-l", type=str, help="File path to local model.")
+args = parser.parse_args()
 
 def load_asset(filename):
 	"""Returns the full path to an asset file."""
@@ -610,7 +615,10 @@ class DialogBox(QDialog):
 		self.default_system_message = "You are a paperclip named Clippy. Your job is to assist the user. You use markdown."
 
 		# Default AI Settings
-		self.set_ai_model("OpenAI", "gpt-4o-mini")
+		if args.local:
+			self.set_ai_model("Local", args.local)
+		else:
+			self.set_ai_model("OpenAI", "gpt-4o-mini")
 
 		# Window Styling
 		self.setWindowFlags(Qt.FramelessWindowHint | Qt.Tool)
