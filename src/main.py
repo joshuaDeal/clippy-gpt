@@ -40,7 +40,10 @@ llm_model_path = None
 llama_lock = threading.Lock()
 
 parser = argparse.ArgumentParser(description="Friendly paperclip AI assistant.")
-parser.add_argument("--local", "-l", type=str, help="File path to local model.")
+parser_group = parser.add_mutually_exclusive_group()
+parser_group.add_argument("-l", "--local", type=str, help="Specify file path to local model.", metavar='PATH')
+parser_group.add_argument("-a", "--openai", type=str, help="Specify OpenAI model to use.", metavar="MODEL")
+parser_group.add_argument("-r", "--openrouter", type=str, help="Specify OpenRouter model to use.", metavar="MODEL")
 args = parser.parse_args()
 
 def load_asset(filename):
@@ -617,6 +620,10 @@ class DialogBox(QDialog):
 		# Default AI Settings
 		if args.local:
 			self.set_ai_model("Local", args.local)
+		elif args.openrouter:
+			self.set_ai_model("OpenRouter", args.openrouter)
+		elif args.openai:
+			self.set_ai_model("OpenAI", args.openai)
 		else:
 			self.set_ai_model("OpenAI", "gpt-4o-mini")
 
