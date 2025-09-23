@@ -3,7 +3,7 @@ Technically, his name is **Clippit**.
 
 `clippy-gpt` is an AI powered recreation of everyone's favorite paperclip assistant that came bundled in older versions of the Microsoft Office suite. Clippy hangs out on your desktop, patiently waiting to answer any questions you might encounter. You can read more about the original Clippy [here](https://en.wikipedia.org/wiki/Office_Assistant).
 
-https://github.com/user-attachments/assets/67e93c4a-c33d-4421-b300-cb764dd05143
+https://github.com/user-attachments/assets/078a9933-bde8-41b9-ba49-c847dc447816
 
 ## Installation / Configuration
 There are three ways to take advantage of Clippy's AI functionality.
