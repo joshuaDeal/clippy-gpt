@@ -14,7 +14,7 @@ Your first option would be to download a large language model to run locally, ho
 ### Using A Service
 Alternatively, you can use either the OpenAI or OpenRouter API to power clippy via an online AI service. You'll need to save an api key in an environmental variable like `OPENAI_API_KEY` or `OPENROUTER_API_KEY`. I have included OpenRouter as an option because it provides some degree of free access to online AI models, unlike OpenAI, which, as of this writing, does not offer any free AI solutions via their API.
 
-In Linux, you can create a new environmental variable by adding something like `export OPENAI_API_KEY='<Your API Key goes here>'` to your `.bashrc` file.
+In Linux, you can create a new environmental variable by adding something like `export OPENAI_API_KEY='<Your API Key goes here>'` to your `.bashrc` file. Then, run something like `source ~/.bashrc`.
 
 In Windows, you can launch `sysdm.cpl` from the `mod + R` menu. On the `Advanced` tab, press the `Environmental Variables` button. From that screen, you can create a new system variable called `OPENAI_API_KEY` and assign it the value of your API key.
 
