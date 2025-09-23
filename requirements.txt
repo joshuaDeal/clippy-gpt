@@ -2,4 +2,4 @@ markdown
 requests
 PySide6[webengine]
 pygame
-llama_cpp
+llama-cpp-python
